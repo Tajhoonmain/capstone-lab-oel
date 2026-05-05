@@ -1,0 +1,62 @@
+course_code,course_title,lec_hrs,lab_hrs,credit_hrs,pre_requisite,co_requisite
+CS101,Computing & Artificial Intelligence,2,0,2,None,CS101L
+CS101L,Computing & Artificial Intelligence Lab,0,3,1,None,None
+HM101,Communication Skills,2,3,3,None,None
+IF101L,Innovation & Makers Lab I,0,3,1,None,None
+MT101,Calculus I,3,0,3,None,None
+PH101,Applied Physics,3,0,3,None,PH101L
+PH101L,Applied Physics Lab,0,3,1,None,None
+MM101,Materials Nanotech and Sustainability,2,0,2,None,MM141L
+MM141L,Materials Nanotech and Sustainability Lab,0,3,1,None,MM101
+CS112,Object-oriented Programming & Design,2,0,2,CS101,CS112L
+CS112L,Object-oriented Programming & Design Lab,0,3,1,CS101L,None
+AI102,Python and Freelancing Essentials,0,3,1,None,None
+ES111,Probability & Statistics,3,0,3,MT101,None
+HM102,Critical Thinking & Expository Writing,2,3,3,None,None
+IF102L,Innovation & Makers Lab II,0,3,1,IF101L,None
+CH161,Occupational Health & Safety,1,0,1,None,None
+CH101,Chemistry Environment and Climate Change,2,0,2,None,None
+MT102,Differential Equations & Linear Algebra I,3,0,3,MT101,None
+CS221,Digital Logic Design,3,0,3,None,CS221L
+CS221L,Digital Logic Design Lab,0,3,1,None,None
+CS202,Information & Communication Technologies,2,0,2,None,None
+CS222,Data Structures & Algorithms,3,0,3,CS112,CS222L
+CS222L,Data Structures & Algorithms Lab,0,3,1,CS112L,None
+CS231,Discrete Mathematics,3,0,3,MT101,None
+ES205,Advanced Linear Algebra,3,0,3,MT102,None
+HM212,Pakistan Studies,2,0,2,None,None
+CS223,Computer Organization & Assembly Language,3,0,3,CS221,CS223L
+CS223L,Computer Organization & Assembly Language Lab,0,3,1,CS221L,None
+AI202,Concepts in Artificial Intelligence,3,0,3,CS222,AI202L
+AI202L,Concepts in Artificial Intelligence Lab,0,3,1,CS222,None
+CS232,Database Management Systems,3,0,3,CS112,CS232L
+CS232L,Database Management Systems Lab,0,3,1,CS112L,None
+CS225,Software Engineering,3,0,3,CS112,None
+HM211,Islamic Studies,2,0,2,None,None
+CS311,Operating Systems,3,0,3,CS223,CS311L
+CS311L,Operating Systems Lab,0,3,1,CS223L,None
+CS378,Design & Analysis of Algorithms,3,0,3,CS222,None
+AI311,Knowledge Representation & Problem Solving,2,0,2,AI202,None
+AI312,Machine Learning,3,0,3,AI202,None
+AI312L,Machine Learning Lab,0,3,1,AI202L,None
+CS392,Software Project Management,2,0,2,CS225,None
+HM3XX,Entrepreneurship,2,0,2,None,None
+CS313,Computer Communications & Networks,3,0,3,CS221,CS313L
+CS313L,Computer Communications & Networks Lab,0,3,1,CS221L,None
+AI313,Deep Neural Network,3,0,3,AI312,AI331L
+AI313L,Deep Neural Network Lab,0,3,1,AI312L,None
+HM4XX,Technical & Business Writing,2,0,2,None,None
+CS380,Senior Design Project,0,3,1,None,None
+HM213,Ideology and Constitution of Pakistan,1,0,1,None,None
+AI361,Natural Language Processing,3,0,3,AI313,AI361L
+AI361L,Natural Language Processing Lab,0,3,1,AI313L,None
+AI441,Computer Vision,3,0,3,AI331,AI441L
+AI441L,Computer Vision Lab,0,3,1,AI331L,None
+CS481,Senior Design Project,0,9,3,None,None
+HM413,Understanding of Quran-I,0,3,1,None,None
+CS417,Parallel Processing & Distributed Computing,3,0,3,None,None
+CS417L,Parallel Processing & Distributed Computing Lab,0,3,1,None,None
+CS465,Data & Network Security,3,0,3,CS313,None
+CS482,Senior Design Project,0,6,2,None,None
+HM432,Civics and Community Engagement,0,3,1,None,None
+HM414,Understanding of Quran-II,0,3,1,None,None

@@ -1,0 +1,33 @@
+Student Evaluation: Students are evaluated by midsemester test, home assignments, quizzes, case studies, course project, laboratory reports, oral tests and the end-of-semester examination. The weight allocated to them depends upon the nature of the course. Usually, the end-of-semester examination carries 50% weightage of a course.
+
+Grading System: Depending upon academic performance, students are awarded grades A, A-, B+, B, B-, C+, C, C-, D+, D, F, I, E and W for each course. These grades indicate the following levels of performance:
+A. Excellent
+B. Good
+C. Adequate
+D. Minimum acceptable
+F. Failure, implying that the student must repeat the course to receive any credit
+I. Incomplete
+E. Exemption
+W. Withdrawn
+
+Each grade is assigned Grade Points per Credit (GPC). The following table indicates the gradation:
+Grade GPC
+A 4.00
+A- 3.67
+B+ 3.33
+B 3.00
+B- 2.67
+C+ 2.33
+C 2.00
+C- 1.67
+D+ 1.33
+D 1.00
+F 0.00
+
+I, E and W grades are not counted in calculation of GPA.
+
+The academic standing of a student is referred as grade point average (GPA) which is the ratio of the total number of grade points earned to the total number of credits attempted. The maximum possible GPA is 4.00. The minimum semester GPA to remain in satisfactory academic standing is 2.00. 
+
+Students are placed on academic probation at the end of any semester in which their semester GPA falls below 2.00. A student on probation is allowed to register only 10-13 credit hours.
+
+A student whose semester GPA remains below 2.00 is given a warning for his/her poor performance. If his/her SGPA remains below 2.00 for two consecutive semesters (excluding summer school) his/her name is removed from the roll of the Institute. Freshmen, upon request, may start a fresh with no credit transfer if two consecutive probations are experienced in first two semesters.

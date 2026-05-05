@@ -9,27 +9,31 @@ from langchain_chroma import Chroma
 DB_DIR = "chroma_db"
 COLLECTION_NAME = "academic_knowledge"
 
+
 # 1. Pydantic Schemas for Validation
 class GPACalculatorSchema(BaseModel):
     grades: List[str] = Field(description="A list of letter grades (e.g., ['A', 'B', 'C'])")
 
+
 class ExamScheduleSchema(BaseModel):
     course_code: str = Field(description="The course code to check (e.g., 'AI407')")
 
+
 class AcademicPolicySchema(BaseModel):
     query: str = Field(description="The question about academic policies or course details")
+
 
 # 2. Tool Implementations
 @tool("calculate_gpa", args_schema=GPACalculatorSchema)
 def calculate_gpa_tool(grades: List[str]):
     """
-    Calculates the GPA from a list of letter grades. 
+    Calculates the GPA from a list of letter grades.
     Use this when a student asks for their average or GPA.
     """
     grade_points = {"A": 4, "B": 3, "C": 2, "D": 1, "F": 0}
     if not grades:
         return "No grades provided."
-    
+
     total = 0
     valid_count = 0
     for g in grades:
@@ -37,27 +41,25 @@ def calculate_gpa_tool(grades: List[str]):
         if point is not None:
             total += point
             valid_count += 1
-    
+
     if valid_count == 0:
         return "Invalid grades provided."
-    
+
     gpa = total / valid_count
     return f"The calculated GPA for grades {grades} is {round(gpa, 2)}."
+
 
 @tool("check_exam_schedule", args_schema=ExamScheduleSchema)
 def check_exam_schedule_tool(course_code: str):
     """
     Returns the scheduled exam time for a specific course code.
     """
-    exam_db = {
-        "AI407": "Monday 2:30 PM",
-        "CS101": "Tuesday 9:00 AM",
-        "SE302": "Wednesday 11:00 AM"
-    }
+    exam_db = {"AI407": "Monday 2:30 PM", "CS101": "Tuesday 9:00 AM", "SE302": "Wednesday 11:00 AM"}
     time = exam_db.get(course_code.upper())
     if time:
         return f"The exam for {course_code} is scheduled for {time}."
     return f"No exam schedule found for course {course_code}."
+
 
 @tool("academic_policy_lookup", args_schema=AcademicPolicySchema)
 def academic_policy_lookup_tool(query: str):
@@ -66,15 +68,12 @@ def academic_policy_lookup_tool(query: str):
     Use this for any general questions about university rules, grading policies, or course prerequisites.
     """
     embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
-    vectorstore = Chroma(
-        persist_directory=DB_DIR,
-        embedding_function=embeddings,
-        collection_name=COLLECTION_NAME
-    )
-    
+    vectorstore = Chroma(persist_directory=DB_DIR, embedding_function=embeddings, collection_name=COLLECTION_NAME)
+
     results = vectorstore.similarity_search(query, k=3)
     context = "\n---\n".join([doc.page_content for doc in results])
     return f"Retrieved Context:\n{context}"
+
 
 # Export tools
 tools = [calculate_gpa_tool, check_exam_schedule_tool, academic_policy_lookup_tool]

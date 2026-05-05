@@ -32,7 +32,7 @@ jobs:
         run: pip install flake8 black
 
       - name: Run Black (code formatter check)
-        run: black --check --diff mcp_project/
+        run: black --check --diff --line-length 120 mcp_project/
 
       - name: Run Flake8 (style & syntax errors)
         run: flake8 mcp_project/ --max-line-length=120 --exclude=__pycache__,chroma_db

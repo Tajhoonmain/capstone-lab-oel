@@ -11,43 +11,43 @@ const QuickActions: React.FC<QuickActionsProps> = ({ onAction, isLoading }) => {
   const quickActions = [
     {
       title: "Calculate GPA",
-      description: "Calculate semester GPA",
-      query: "calculate my gpa",
+      description: "Custom grades",
+      query: "calculate my gpa for my grades c, d, a, b",
       icon: Calculator,
       color: "bg-[#10B981]/20 border-[#10B981]/40 text-[#10B981]"
     },
     {
       title: "Exam Schedule",
-      description: "Check exam times",
-      query: "when is my exam",
+      description: "Any course exam",
+      query: "when is the exam for MATH201?",
       icon: Calendar,
       color: "bg-[#F59E0B]/20 border-[#F59E0B]/40 text-[#F59E0B]"
     },
     {
       title: "Student Info",
-      description: "View my profile",
-      query: "show my student information",
+      description: "By student ID",
+      query: "who am i? my student id is ST1002",
       icon: User,
       color: "bg-[#6366F1]/20 border-[#6366F1]/40 text-[#6366F1]"
     },
     {
       title: "Register Course",
-      description: "Add new course",
-      query: "register for advanced algorithms",
+      description: "Any new course",
+      query: "register me for ENG150",
       icon: BookOpen,
       color: "bg-[#8B5CF6]/20 border-[#8B5CF6]/40 text-[#8B5CF6]"
     },
     {
       title: "Grade Prediction",
-      description: "Predict final grade",
-      query: "predict my final grade in AI407",
+      description: "With my current grade",
+      query: "predict my final grade in PHYS220, my current grade is 65.5",
       icon: TrendingUp,
       color: "bg-[#EC4899]/20 border-[#EC4899]/40 text-[#EC4899]"
     },
     {
-      title: "Track Assignment",
-      description: "Add assignment",
-      query: "track my machine learning project",
+      title: "Credit Check",
+      description: "Major missing credits",
+      query: "how many credits to graduate physics? i have 90",
       icon: CheckSquare,
       color: "bg-[#14B8A6]/20 border-[#14B8A6]/40 text-[#14B8A6]"
     }

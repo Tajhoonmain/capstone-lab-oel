@@ -6,6 +6,7 @@ They mock the agent so CI/CD runs are fast and don't consume API quota.
 
 Run locally: pytest mcp_project/tests/unit/ -v
 """
+
 import json
 import os
 import sys
@@ -16,6 +17,7 @@ from unittest.mock import patch, MagicMock
 # ──────────────────────────────────────────────
 # Fixtures
 # ──────────────────────────────────────────────
+
 
 @pytest.fixture
 def sample_thresholds():
@@ -42,6 +44,7 @@ def passing_test_suite():
 # ──────────────────────────────────────────────
 # Test 1 — Keyword evaluator logic (pure unit)
 # ──────────────────────────────────────────────
+
 
 class TestKeywordEvaluator:
     """Tests the keyword-match scoring logic used by run_eval.py."""
@@ -75,6 +78,7 @@ class TestKeywordEvaluator:
 # ──────────────────────────────────────────────
 # Test 2 — Threshold enforcement logic
 # ──────────────────────────────────────────────
+
 
 class TestThresholdEnforcement:
     """Tests the gate pass/fail logic from run_eval.py."""
@@ -119,6 +123,7 @@ class TestThresholdEnforcement:
 # Test 3 — Eval report structure
 # ──────────────────────────────────────────────
 
+
 class TestEvalReportStructure:
     """Validates that eval_results.json has the required schema."""
 
@@ -150,6 +155,7 @@ class TestEvalReportStructure:
 # ──────────────────────────────────────────────
 # Test 4 — run_eval.py integration (mocked agent)
 # ──────────────────────────────────────────────
+
 
 class TestRunEvalMocked:
     """
@@ -194,6 +200,7 @@ class TestRunEvalMocked:
             # Import here after patching
             import importlib
             import mcp_project.run_eval as run_eval_module
+
             importlib.reload(run_eval_module)
 
             # The function should not sys.exit(1)
@@ -208,6 +215,7 @@ class TestRunEvalMocked:
 
         import importlib
         import mcp_project.run_eval as run_eval_module
+
         importlib.reload(run_eval_module)
 
         with pytest.raises(SystemExit) as exc_info:
@@ -220,13 +228,12 @@ class TestRunEvalMocked:
 # Test 5 — Config & environment sanity checks
 # ──────────────────────────────────────────────
 
+
 class TestEnvironmentSanity:
     """Fast sanity checks that don't import the agent at all."""
 
     def test_python_version_is_311_or_higher(self):
-        assert sys.version_info >= (3, 11), (
-            f"Python 3.11+ required, got {sys.version}"
-        )
+        assert sys.version_info >= (3, 11), f"Python 3.11+ required, got {sys.version}"
 
     def test_eval_thresholds_file_exists(self):
         path = os.path.join("mcp_project", "eval_thresholds.json")

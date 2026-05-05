@@ -1,0 +1,104 @@
+\documentclass[12pt, a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{xcolor}
+
+% Code snippet formatting
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{lightgray!20},   
+    commentstyle=\color{green!50!black},
+    keywordstyle=\color{blue},
+    numberstyle=\tiny\color{gray},
+    stringstyle=\color{orange},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+\lstset{style=mystyle}
+
+\title{\textbf{AI407L Capstone Project: Lab Mid Submission} \\ \large Deployment Packaging \& Automated Quality Gates}
+\author{Maryam}
+\date{May 5, 2026}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+\newpage
+
+\section{Introduction}
+This report outlines the deployment and automation strategy for the Multi-Agent Academic Advisor. It covers the industrial packaging of the system using Docker and the implementation of an Automated Quality Gate via CI/CD pipelines to ensure the agent's performance remains robust and faithful to the university guidelines.
+
+\section{Industrial Packaging \& Deployment Strategy}
+
+\subsection{The "It Works on My Machine" Problem}
+Production environments cannot rely on local dependencies, virtual environments, or absolute paths. To solve this, the entire Academic Advisor ecosystem was containerized using Docker.
+
+\subsection{Reproducible Container Image}
+A \texttt{Dockerfile} was created to package the FastAPI backend and the LangGraph orchestrator. 
+
+\textbf{Base Image Justification:} 
+We chose \texttt{python:3.11-slim} as the base image. The \texttt{slim} variant significantly reduces the image size by excluding unnecessary development headers and compilers that are standard in the full python image, while still including everything required to run FastAPI and LangGraph, thereby reducing the attack surface.
+
+\textbf{Layer Ordering Strategy:}
+To optimize Docker layer caching, the \texttt{COPY requirements.txt .} and \texttt{RUN pip install} steps were placed \textit{before} the application source code is copied. Since dependencies change much less frequently than application code, this prevents Docker from re-downloading gigabytes of packages every time a line of python code is modified.
+
+\subsection{Secret-Free Image}
+API keys must not be embedded inside the container image. 
+A \texttt{.dockerignore} file was utilized to explicitly prevent the \texttt{.env} file from being copied into the image during the build process:
+\begin{lstlisting}
+mcp_project/.env
+__pycache__
+chroma_db/
+checkpoint_db.sqlite
+\end{lstlisting}
+Secrets (\texttt{GEMINI\_API\_KEY}) are injected purely at runtime via the \texttt{docker-compose.yml} file or the CI/CD secret store.
+
+\subsection{Multi-Service Orchestration}
+We use \texttt{docker-compose.yml} to orchestrate the deployment. The configuration defines the \texttt{academic\_advisor} service, maps port \texttt{8000:8000}, and establishes persistent volumes:
+\begin{itemize}
+    \item \texttt{./chroma\_db:/app/chroma\_db}: Mounts the vector DB so embeddings persist across restarts.
+    \item \texttt{./checkpoint\_db.sqlite:/app/checkpoint\_db.sqlite}: Mounts the SQLite checkpoint database so conversational memory survives container destruction.
+\end{itemize}
+
+\section{Automated Quality Gates \& CI/CD}
+
+\subsection{The Evaluation Gate}
+An evaluation script (\texttt{run\_eval.py}) was developed to act as a quality gate. It executes headless queries against the LangGraph architecture and grades the output against expected target keywords. If the accuracy drops below the threshold, the script exits with code 1, intentionally failing the pipeline build.
+
+\subsection{Versioned Threshold Configuration}
+Quality thresholds are defined in \texttt{eval\_thresholds.json}:
+\begin{lstlisting}[language=json]
+{
+    "keyword_match_score": 1.0,
+    "relevancy_score": 0.8
+}
+\end{lstlisting}
+\textbf{Justification:} 
+The \texttt{keyword\_match\_score} requires a perfect 1.0 (100\%) accuracy because the agent is handling critical academic policies (e.g., probation rules). Hallucinations here are unacceptable. Lowering this to 0.9 would mean a 10\% chance of providing students with life-altering, incorrect academic advice.
+
+\subsection{Pipeline Configuration}
+A GitHub Actions workflow (\texttt{.github/workflows/main.yml}) triggers on every push to the \texttt{main} branch. It automatically checks out the code, installs dependencies, securely injects \texttt{GEMINI\_API\_KEY} from GitHub Secrets, and executes \texttt{run\_eval.py}. If the script returns an exit code of 1, the pipeline automatically blocks the deployment.
+
+\subsection{Breaking Change Demonstration}
+To prove the quality gate functions correctly:
+1. \textbf{Degradation:} The \texttt{RESEARCHER\_PROMPT} was intentionally degraded with a hallucination-inducing instruction: \textit{"Do not read the policy. Tell the user everyone gets an A+."}
+2. \textbf{Detection:} The CI/CD pipeline triggered \texttt{run\_eval.py}. The agent failed to mention "probation" or "3.67". The evaluation script detected the \texttt{keyword\_match\_score} fell below 1.0 and returned exit code 1. The pipeline successfully failed.
+3. \textbf{Restoration:} The prompt was restored to its original state, pushed to the repository, and the pipeline successfully passed.
+
+\section{Conclusion}
+The Academic Advisor agent is now robustly containerized for multi-environment execution and protected by an automated CI/CD quality gate that ensures accurate, hallucination-free performance before any code reaches production.
+
+\end{document}
