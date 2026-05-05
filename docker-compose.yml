@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  academic_advisor:
+    # Build the image from the Dockerfile in the current directory
+    build: .
+    container_name: mcp_academic_advisor
+    ports:
+      - "8000:8000"
+    volumes:
+      # Mount the local vector database so data persists across container restarts
+      - ./chroma_db:/app/chroma_db
+      # Mount the local SQLite Checkpointer database to preserve student memory (Lab 5)
+      - ./checkpoint_db.sqlite:/app/checkpoint_db.sqlite
+    env_file:
+      # Automatically pass the Gemini and LangSmith keys from the .env file
+      - ./mcp_project/.env
+    restart: unless-stopped
+    environment:
+      # Ensure python output goes straight to the console (good for logs)
+      - PYTHONUNBUFFERED=1

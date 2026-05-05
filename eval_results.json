@@ -1,0 +1,25 @@
+{
+    "metrics": {
+        "keyword_match_score": 0.0,
+        "relevancy_score": 0.0
+    },
+    "thresholds": {
+        "keyword_match_score": 1.0,
+        "relevancy_score": 0.8
+    },
+    "pass": false,
+    "details": [
+        {
+            "test_case": "If my GPA is 1.5, what is my academic status?",
+            "agent_response": "",
+            "expected_keyword": "probation",
+            "keyword_match_score": 0.0
+        },
+        {
+            "test_case": "How many grade points do I get for an A-?",
+            "agent_response": "",
+            "expected_keyword": "3.67",
+            "keyword_match_score": 0.0
+        }
+    ]
+}

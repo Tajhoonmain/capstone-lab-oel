@@ -116,11 +116,12 @@ async def handle_call_tool(name: str, arguments: dict | None) -> types.CallToolR
     elif name == "check_exam_schedule":
         course = arguments.get("course_code", "").upper()
         schedules = {
-            "AI407": "Monday 2:00 PM - Room 301",
-            "CS101": "Tuesday 10:00 AM - Room 205",
-            "MATH201": "Wednesday 3:00 PM - Room 412",
-            "ENG150": "Thursday 9:00 AM - Room 108",
-            "PHYS220": "Friday 1:00 PM - Room 302"
+            "DS364": "Saturday 10:00 AM - 11:00 AM - Seminar Hall (Full stack)",
+            "CS464": "Saturday 2:30 PM - 3:30 PM - Brabers (DNS)",
+            "HM425": "Sunday 8:00 AM - 9:00 AM - Brabers (Cyber law)",
+            "CS444": "Monday 2:30 PM - 3:30 PM - Quiz Hall FME (IR)",
+            "MM101": "Monday 2:30 PM - 3:30 PM - Brabers (MM)",
+            "CE408": "Tuesday 12:30 PM - 1:30 PM - Brabers (Cloud)"
         }
         time = schedules.get(course, f"No exam schedule found for {course}")
         return types.CallToolResult(
@@ -145,13 +146,25 @@ async def handle_call_tool(name: str, arguments: dict | None) -> types.CallToolR
         assignments_remaining = arguments.get("assignments_remaining", 0)
         exam_weight = arguments.get("exam_weight", 0.4)
         
+        # Course mapping 
+        courses = {
+            "DS364": "Full Stack",
+            "CS464": "DNS",
+            "HM425": "Cyber Law",
+            "CS444": "IR",
+            "MM101": "MM",
+            "CE408": "Cloud"
+        }
+        
+        course_name = courses.get(course_code, "Course")
+        
         # Simple grade prediction logic
         assignment_weight = 1 - exam_weight
         current_assignment_grade = current_grade / assignment_weight if assignment_weight > 0 else current_grade
         predicted_final = (current_assignment_grade * assignment_weight) + (85 * exam_weight)  # Assume 85 on final exam
         
         return types.CallToolResult(
-            content=[types.TextContent(type="text", text=f"Grade prediction for {course_code}: Current {current_grade} → Predicted Final: {round(predicted_final, 2)} (assuming 85 on final exam)")],
+            content=[types.TextContent(type="text", text=f"Grade prediction for {course_code} ({course_name}): Current {current_grade} → Predicted Final: {round(predicted_final, 2)} (assuming 85 on final exam)")],
             isError=False
         )
     elif name == "track_assignment":
@@ -160,10 +173,22 @@ async def handle_call_tool(name: str, arguments: dict | None) -> types.CallToolR
         due_date = arguments.get("due_date", "")
         status = arguments.get("status", "pending")
         
+        # Course mapping 
+        courses = {
+            "DS364": "Full Stack",
+            "CS464": "DNS",
+            "HM425": "Cyber Law",
+            "CS444": "IR",
+            "MM101": "MM",
+            "CE408": "Cloud"
+        }
+        
+        course_name = courses.get(course_code, "Course")
+        
         # Simulate assignment tracking
         tracking_id = f"TRK{hash(assignment_name + course_code) % 10000}"
         return types.CallToolResult(
-            content=[types.TextContent(type="text", text=f"Assignment tracked: '{assignment_name}' for {course_code}. Due: {due_date}. Status: {status}. Tracking ID: {tracking_id}")],
+            content=[types.TextContent(type="text", text=f"Assignment tracked: '{assignment_name}' for {course_code} ({course_name}). Due: {due_date}. Status: {status}. Tracking ID: {tracking_id}")],
             isError=False
         )
     elif name == "get_student_info":
@@ -171,9 +196,9 @@ async def handle_call_tool(name: str, arguments: dict | None) -> types.CallToolR
         
         # Simulate student database lookup
         students = {
-            "ST1001": {"name": "Alice Johnson", "major": "Computer Science", "year": "Junior", "gpa": 3.7, "credits": 75},
-            "ST1002": {"name": "Bob Smith", "major": "Mathematics", "year": "Sophomore", "gpa": 3.2, "credits": 45},
-            "ST1003": {"name": "Carol Davis", "major": "Physics", "year": "Senior", "gpa": 3.9, "credits": 110}
+            "2022907": {"name": "Maryam Taj", "major": "AI", "year": "Senior", "gpa": 3.7, "credits": 100},
+            "2022106": {"name": "Arbaz", "major": "CS", "year": "Senior", "gpa": 3.2, "credits": 100},
+            "2022002": {"name": "Aaiz", "major": "SE", "year": "Senior", "gpa": 3.9, "credits": 110}
         }
         
         info = students.get(student_id, {"name": "Unknown Student", "major": "Undeclared", "year": "Freshman", "gpa": 0.0, "credits": 0})
@@ -188,11 +213,9 @@ async def handle_call_tool(name: str, arguments: dict | None) -> types.CallToolR
         
         # Credit requirements by major
         requirements = {
-            "Computer Science": 120,
-            "Mathematics": 115,
-            "Physics": 118,
-            "Engineering": 130,
-            "Biology": 122
+            "CS": 120,
+            "AI": 115,
+            "SE": 118,
         }
         
         required = requirements.get(major, 120)

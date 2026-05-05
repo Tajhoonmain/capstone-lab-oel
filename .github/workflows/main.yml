@@ -1,0 +1,170 @@
+name: CI/CD Pipeline — Academic Advisor Agent
+
+on:
+  push:
+    branches: [ "master", "develop" ]
+  pull_request:
+    branches: [ "master" ]
+
+# Cancel any in-progress run for the same branch/PR to save resources
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# ─────────────────────────────────────────────────
+# JOB 1: Lint & Static Analysis
+# ─────────────────────────────────────────────────
+jobs:
+  lint:
+    name: 🔍 Lint & Style Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install lint tools
+        run: pip install flake8 black
+
+      - name: Run Black (code formatter check)
+        run: black --check --diff mcp_project/
+
+      - name: Run Flake8 (style & syntax errors)
+        run: flake8 mcp_project/ --max-line-length=120 --exclude=__pycache__,chroma_db
+
+# ─────────────────────────────────────────────────
+# JOB 2: Unit Tests (no LLM calls, fast)
+# ─────────────────────────────────────────────────
+  unit-tests:
+    name: 🧪 Unit Tests
+    runs-on: ubuntu-latest
+    needs: lint
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest pytest-cov
+
+      - name: Run unit tests with coverage
+        env:
+          PYTHONPATH: .
+          # Stub key — unit tests must NOT make real LLM calls
+          GEMINI_API_KEY: "stub-key-for-unit-tests"
+        run: |
+          pytest mcp_project/tests/unit/ -v \
+            --tb=short \
+            --cov=mcp_project \
+            --cov-report=xml \
+            --cov-report=term-missing
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage.xml
+
+# ─────────────────────────────────────────────────
+# JOB 3: Integration Tests (real LLM, gated)
+# ─────────────────────────────────────────────────
+  integration-tests:
+    name: 🤖 Integration / Quality Gate
+    runs-on: ubuntu-latest
+    needs: unit-tests
+    # Only run on pushes to main (not every PR to save API quota)
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run Headless Quality Gate Evaluation
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          LANGCHAIN_API_KEY: ${{ secrets.LANGCHAIN_API_KEY }}
+          LANGCHAIN_TRACING_V2: "true"
+          LANGCHAIN_PROJECT: "academic_advisor_ci"
+          PYTHONPATH: .
+        run: python mcp_project/run_eval.py
+
+      - name: Upload evaluation results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eval-results-${{ github.run_number }}
+          path: eval_results.json
+
+# ─────────────────────────────────────────────────
+# JOB 4: Docker Build Validation
+# ─────────────────────────────────────────────────
+  docker-build:
+    name: 🐳 Docker Build Check
+    runs-on: ubuntu-latest
+    needs: unit-tests
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image (no push)
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: false
+          tags: academic-advisor:ci-${{ github.run_number }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+# ─────────────────────────────────────────────────
+# JOB 5: Summary Report
+# ─────────────────────────────────────────────────
+  report:
+    name: 📊 Pipeline Summary
+    runs-on: ubuntu-latest
+    needs: [lint, unit-tests, docker-build]
+    if: always()
+
+    steps:
+      - name: Print pipeline summary
+        run: |
+          echo "## ✅ CI/CD Pipeline Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Job | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Lint | ${{ needs.lint.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Unit Tests | ${{ needs.unit-tests.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Docker Build | ${{ needs.docker-build.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch:** \`${{ github.ref_name }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Triggered by:** ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
