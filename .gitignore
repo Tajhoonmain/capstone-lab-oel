@@ -61,3 +61,18 @@ debug_output.txt
 # Temporary files
 *.tmp
 *.temp
+
+# Databases
+*.sqlite
+chroma_db/
+feedback_log.json
+
+# LaTeX artifacts
+*.aux
+*.log
+*.out
+*.toc
+*.pdf
+*.fdb_latexmk
+*.fls
+*.synctex.gz

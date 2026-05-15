@@ -59,10 +59,45 @@ if "thread_id" not in st.session_state:
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
+def log_feedback(user_input, agent_response, feedback):
+    log_file = "feedback_log.json"
+    data = []
+    import os
+    if os.path.exists(log_file):
+        with open(log_file, "r") as f:
+            try:
+                data = json.load(f)
+            except:
+                pass
+    data.append({
+        "user_input": user_input,
+        "agent_response": agent_response,
+        "feedback": feedback
+    })
+    with open(log_file, "w") as f:
+        json.dump(data, f, indent=4)
+
 # --- Render Chat History ---
-for message in st.session_state.messages:
+for i, message in enumerate(st.session_state.messages):
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
+        if message["role"] == "assistant":
+            if not message.get("feedback_given"):
+                col1, col2 = st.columns([1, 10])
+                with col1:
+                    if st.button("👍", key=f"good_{i}"):
+                        user_msg = st.session_state.messages[i-1]["content"] if i > 0 else "Unknown"
+                        log_feedback(user_msg, message["content"], "Good")
+                        st.session_state.messages[i]["feedback_given"] = "Good"
+                        st.rerun()
+                with col2:
+                    if st.button("👎", key=f"bad_{i}"):
+                        user_msg = st.session_state.messages[i-1]["content"] if i > 0 else "Unknown"
+                        log_feedback(user_msg, message["content"], "Bad")
+                        st.session_state.messages[i]["feedback_given"] = "Bad"
+                        st.rerun()
+            else:
+                st.caption(f"Feedback submitted: {message['feedback_given']}")
 
 # --- User Input & Streaming Logic ---
 if prompt := st.chat_input("Ask about your degree plan, GPA, or university policies..."):

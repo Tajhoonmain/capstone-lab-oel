@@ -1,200 +1,119 @@
-# MCP Capstone Project
+# Multi-Agent Academic Advisor (MAAA)
 
-A complete Model Context Protocol (MCP) demonstration system that showcases the integration between a React frontend and MCP server architecture.
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![Python](https://img.shields.io/badge/python-3.11%2B-blue.svg)
+![React](https://img.shields.io/badge/react-18-61dafb.svg)
+![LangGraph](https://img.shields.io/badge/langgraph-latest-green.svg)
 
-## 🏗️ Architecture
+MAAA is a state-of-the-art Agentic AI system designed to assist students and faculty with academic policy navigation, GPA calculations, and exam scheduling. Built on the **Model Context Protocol (MCP)** and **LangGraph**, it features a sophisticated **Self-RAG (Retrieval-Augmented Generation)** pipeline with automated quality gates and feedback loops.
 
+## 🌟 Key Features
+
+- **Agentic Workflow**: Orchestrated by LangGraph for complex decision-making and tool-chaining.
+- **Self-RAG Pipeline**: Implements self-reflective retrieval with document relevance grading and hallucination self-checks.
+- **Model Context Protocol (MCP)**: Full compliance with the MCP specification for dynamic tool discovery and execution.
+- **Industrial Deployment**: Containerized with Docker and monitored via integrated feedback loops and drift analysis.
+- **Automated Quality Gates**: CI/CD integration with strict keyword-matching evaluation thresholds.
+
+## 🏗️ System Architecture
+
+MAAA follows a decoupled multi-layer architecture:
+
+```mermaid
+graph TD
+    A[React Frontend] -->|Query| B[FastAPI / Flask Bridge]
+    B -->|Context Loading| C[MAAA Agentic Core]
+    C -->|LangGraph Orchestration| D{Self-RAG Pipeline}
+    D -->|Tool Discovery| E[MCP Server]
+    E -->|Execute| F[Domain Tools]
+    F -->|Result| D
+    D -->|Hallucination Check| G[Response Validator]
+    G -->|Final Answer| B
 ```
-React Frontend → Flask API Bridge → MCP Client → MCP Server → Tools
-```
 
-### Layers Implemented:
-
-- **Model Layer**: Tool selection logic based on user queries
-- **Context Layer**: System context management (session, environment, timestamps)
-- **Tool Layer**: MCP protocol-based tool discovery and execution
-- **Execution Layer**: Actual tool implementation (GPA calculation, exam scheduling)
+### Core Components:
+- **Execution Layer**: Real-time tools for academic data processing.
+- **Context Layer**: State management and persistent memory for student interactions.
+- **Retrieval Layer**: ChromaDB-backed vector store for university policies.
+- **Monitoring Layer**: Post-deployment feedback collection and performance drift analysis.
 
 ## 📁 Project Structure
 
-```
-capstone-lab mid/
-├── frontend/                    # React + Tailwind UI
-│   ├── src/
-│   │   ├── components/          # UI components
-│   │   ├── pages/              # Dashboard page
-│   │   └── services/          # API service layer
-│   └── package.json
-├── mcp_project/                # MCP Implementation
-│   ├── mcp_server/            # MCP server components
-│   ├── client/                 # MCP client layer
-│   ├── model/                  # Model layer (tool selection)
-│   ├── execution/              # Tool execution layer
-│   ├── server.py              # MCP server
-│   ├── client_bridge.py       # MCP client bridge
-│   └── _mcp_worker.py        # MCP pipeline worker
-├── api_flask.py               # Flask API bridge
-└── README.md
+```bash
+.
+├── frontend/                # Vite + React + TailwindCSS Dashboard
+├── mcp_project/             # MCP Server & Core Tool Definitions
+├── part_b/                  # Agentic Logic & LangGraph Implementation
+│   ├── self_rag_agent.py    # Self-RAG Agent orchestration
+│   └── tools.py             # Domain-specific tools (GPA, Schedule)
+├── api_flask.py             # Unified API Bridge
+├── app.py                   # Streamlit Monitoring Interface
+├── analyze.py               # Performance & Drift Analysis Utility
+├── Dockerfile               # Production-grade containerization
+└── docker-compose.yml       # Stack orchestration
 ```
 
 ## 🚀 Getting Started
 
 ### Prerequisites
-
-- Python 3.11+
-- Node.js 18+
-- npm
+- **Python 3.11+**
+- **Node.js 18+**
+- **Docker** (optional, for containerized run)
+- **Gemini API Key** (for LLM reasoning)
 
 ### Installation
 
-1. **Clone the repository**
+1. **Clone the Repository**
    ```bash
-   git clone https://github.com/Tajhoonmain/MCP-Capstone.git
-   cd MCP-Capstone
+   git clone https://github.com/Tajhoonmain/Multi-AgentAcademicAdvisor.git
+   cd Multi-AgentAcademicAdvisor
    ```
 
-2. **Install Python dependencies**
+2. **Backend Setup**
    ```bash
-   pip install mcp fastapi flask flask-cors uvicorn
+   pip install -r requirements.txt
+   export GEMINI_API_KEY='your_key_here'
    ```
 
-3. **Install frontend dependencies**
+3. **Frontend Setup**
    ```bash
    cd frontend
    npm install
-   cd ..
    ```
 
-### Running the System
+### Execution
 
-**Step 1: Start MCP Server**
+#### Option 1: Standard Run
 ```bash
-cd mcp_project
-python server.py
-```
-
-**Step 2: Start Flask Backend**
-```bash
-cd ..
+# Start the Backend Service
 python api_flask.py
-```
 
-**Step 3: Start React Frontend**
-```bash
+# In a new terminal, start the Frontend
 cd frontend
 npm run dev
 ```
 
-### Access Points
-
-- **Frontend**: http://localhost:5173 (or 5174 if 5173 is busy)
-- **Backend API**: http://localhost:8000
-- **API Endpoint**: POST http://localhost:8000/ask
-
-## 🔧 Available Tools
-
-### 1. GPA Calculator
-- **Tool Name**: `calculate_gpa`
-- **Description**: Calculate GPA from letter grades
-- **Sample Query**: "calculate my gpa"
-- **Parameters**: `{"grades": ["A", "B", "A"]}`
-- **Result**: `{"text": "Calculated GPA: 3.67"}`
-
-### 2. Exam Schedule Checker
-- **Tool Name**: `check_exam_schedule`
-- **Description**: Get exam schedule for a course
-- **Sample Query**: "when is my exam"
-- **Parameters**: `{"course_code": "AI407"}`
-- **Result**: `{"text": "Exam for AI407: Monday 2:00 PM"}`
-
-## 📊 API Response Format
-
-The system returns responses in the MCPResponse format:
-
-```json
-{
-  "context": {
-    "timestamp": "2026-03-09T05:08:47.644482",
-    "user_session": "demo-user-123",
-    "environment": "academic-demonstration",
-    "platform": "windows",
-    "system_status": "ready"
-  },
-  "tools": ["calculate_gpa", "check_exam_schedule"],
-  "selected_tool": "calculate_gpa",
-  "parameters": {
-    "grades": ["A", "B", "A"]
-  },
-  "result": {
-    "text": "Calculated GPA: 3.67"
-  }
-}
+#### Option 2: Docker Deployment
+```bash
+docker-compose up --build
 ```
 
-## 🔄 Pipeline Flow
+## 📊 Monitoring & Evaluation
 
-1. **User Query** - React frontend sends query to Flask API
-2. **Context Loading** - System loads session context
-3. **Tool Discovery** - MCP client discovers available tools
-4. **Model Selection** - Model layer selects appropriate tool
-5. **MCP Execution** - Tool executed via MCP protocol
-6. **Response Return** - Structured response returned to frontend
+The system includes a built-in analysis suite to track agent performance:
 
-## 📝 Logging
+- **Feedback Loop**: Integrated "Good/Bad" interaction logging.
+- **Drift Analysis**: Run `python analyze.py` to identify top failed queries and system accuracy.
+- **Quality Gates**: Evaluation scripts that enforce keyword-matching thresholds for critical policy queries.
 
-The system provides comprehensive logging at each pipeline step:
-
-```
-Context loaded
-Tools discovered: ['calculate_gpa', 'check_exam_schedule']
-Model selected tool: calculate_gpa
-Executing tool via MCP
-Returning response to frontend
-```
-
-## 🎯 Sample Queries to Test
-
-- "calculate my gpa"
-- "what's my gpa"
-- "check my grades"
-- "when is my exam"
-- "exam schedule"
-- "check exam for AI407"
-
-## 🛠️ Technologies Used
-
-- **Frontend**: React 18, TypeScript, TailwindCSS, Framer Motion
-- **Backend**: Flask, Flask-CORS
-- **MCP**: Model Context Protocol (mcp library)
-- **UI Components**: Radix UI, Lucide Icons
-- **Build Tools**: Vite, npm
-
-## 📚 MCP Architecture Demonstration
-
-This project demonstrates:
-
-- ✅ **MCP Protocol Compliance**: All tool execution through MCP
-- ✅ **Layer Separation**: Clear separation between model, context, tool, and execution layers
-- ✅ **Tool Discovery**: Dynamic tool discovery via MCP
-- ✅ **Structured Responses**: Consistent MCPResponse format
-- ✅ **Logging Pipeline**: Complete visibility into MCP flow
-- ✅ **Academic Use Case**: University assistant scenario
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Push to the branch
-5. Create a Pull Request
+## 🛡️ Security & Compliance
+- **Environment Isolation**: Secure API key management via environment variables.
+- **Data Protection**: Local persistence of vector databases and checkpoint stores.
 
 ## 📄 License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-This project is for academic demonstration purposes as part of a capstone project.
-
-## 🔗 Resources
-
+## 🔗 References
 - [Model Context Protocol Specification](https://modelcontextprotocol.io/)
-- [MCP Python Library](https://github.com/modelcontextprotocol/python-sdk)
-- [React Documentation](https://react.dev/)
-- [Flask Documentation](https://flask.palletsprojects.com/)
+- [LangGraph Documentation](https://github.com/langchain/langgraph)
+- [Self-RAG Paper](https://arxiv.org/abs/2310.11511)
