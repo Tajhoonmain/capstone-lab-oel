@@ -98,6 +98,23 @@ To prove the quality gate functions correctly:
 2. \textbf{Detection:} The CI/CD pipeline triggered \texttt{run\_eval.py}. The agent failed to mention "probation" or "3.67". The evaluation script detected the \texttt{keyword\_match\_score} fell below 1.0 and returned exit code 1. The pipeline successfully failed.
 3. \textbf{Restoration:} The prompt was restored to its original state, pushed to the repository, and the pipeline successfully passed.
 
+\subsection{Pipeline Execution Evidence}
+The following screenshots demonstrate the execution of the CI/CD pipeline in GitHub Actions, including the multi-job workflow containing linting, unit testing, and the evaluation quality gate.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{pipeline_screenshot.png} 
+    \caption{GitHub Actions CI/CD Pipeline Execution}
+    \label{fig:pipeline}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{failure_screenshot.png} 
+    \caption{Detailed Job Output for Pipeline Run}
+    \label{fig:failure}
+\end{figure}
+
 \section{Conclusion}
 The Academic Advisor agent is now robustly containerized for multi-environment execution and protected by an automated CI/CD quality gate that ensures accurate, hallucination-free performance before any code reaches production.
 
